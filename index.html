@@ -18,6 +18,7 @@
             min-height: 100vh;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
         }
 
         .game-container {
@@ -27,6 +28,8 @@
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .info {
@@ -93,11 +96,6 @@
             font-weight: bold;
         }
 
-        .button-group {
-            display: flex;
-            gap: 10px;
-        }
-
         #start-btn, #music-btn {
             padding: 15px 30px;
             font-size: 1.2em;
@@ -141,6 +139,69 @@
             margin-top: 10px;
         }
 
+        .mobile-controls {
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+            max-width: 240px;
+        }
+
+        .mobile-controls button {
+            padding: 20px;
+            font-size: 1.5em;
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            border: 2px solid white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            touch-action: manipulation;
+        }
+
+        .mobile-controls button:active {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(0.95);
+        }
+
+        .mobile-controls .rotate-btn {
+            grid-column: 2;
+        }
+
+        .mobile-controls .left-btn {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        .mobile-controls .down-btn {
+            grid-column: 2;
+            grid-row: 2;
+        }
+
+        .mobile-controls .right-btn {
+            grid-column: 3;
+            grid-row: 2;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-controls {
+                display: grid;
+            }
+            
+            .controls {
+                display: none;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .game-container {
+                padding: 10px;
+                gap: 10px;
+            }
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -158,7 +219,8 @@
             padding: 30px;
             border: 3px solid white;
             border-radius: 10px;
-            width: 400px;
+            width: 90%;
+            max-width: 400px;
             color: white;
             text-align: center;
         }
@@ -205,6 +267,13 @@
             </div>
             <button id="start-btn">СТАРТ</button>
             <button id="music-btn">🔊 Музыка: ВКЛ</button>
+            
+            <div class="mobile-controls">
+                <button class="rotate-btn" id="rotate-mobile">↻</button>
+                <button class="left-btn" id="left-mobile">←</button>
+                <button class="down-btn" id="down-mobile">↓</button>
+                <button class="right-btn" id="right-mobile">→</button>
+            </div>
         </div>
         <div>
             <canvas id="tetris" width="240" height="400"></canvas>
@@ -231,12 +300,14 @@
         </div>
     </div>
 
-    <!-- Скрытый аудио элемент для музыки -->
-    <audio id="bgMusic" loop>
-        <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=" type="audio/wav">
-    </audio>
-
     <script>
+        // Предотвращаем прокрутку страницы при использовании игровых клавиш
+        window.addEventListener('keydown', function(e) {
+            if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].indexOf(e.key) > -1) {
+                e.preventDefault();
+            }
+        }, false);
+
         const canvas = document.getElementById('tetris');
         const ctx = canvas.getContext('2d');
         const nextCanvas = document.getElementById('next-piece');
@@ -279,7 +350,6 @@
         let currentSessionScore = 0;
         let musicEnabled = true;
 
-        // Web Audio API для музыки
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioContext;
         let currentOscillators = [];
@@ -296,7 +366,6 @@
             color: 0
         };
 
-        // Мелодия Тетриса (Korobeiniki)
         const tetrisMelody = [
             {note: 'E5', duration: 400}, {note: 'B4', duration: 200}, {note: 'C5', duration: 200},
             {note: 'D5', duration: 400}, {note: 'C5', duration: 200}, {note: 'B4', duration: 200},
@@ -596,7 +665,6 @@
             dropInterval = setInterval(drop, speed);
         }
 
-        // Система рекордов
         function loadHighScores() {
             const scores = localStorage.getItem('tetrisHighScores');
             return scores ? JSON.parse(scores) : [];
@@ -660,6 +728,7 @@
             closeModal();
         }
 
+        // Keyboard controls
         document.addEventListener('keydown', e => {
             if (!gameStarted || gameOver) return;
 
@@ -700,6 +769,34 @@
             }
         });
 
+        // Mobile touch controls
+        document.getElementById('left-mobile').addEventListener('click', () => {
+            if (gameStarted && !gameOver && !isPaused) {
+                move(-1);
+                draw();
+            }
+        });
+
+        document.getElementById('right-mobile').addEventListener('click', () => {
+            if (gameStarted && !gameOver && !isPaused) {
+                move(1);
+                draw();
+            }
+        });
+
+        document.getElementById('down-mobile').addEventListener('click', () => {
+            if (gameStarted && !gameOver && !isPaused) {
+                drop();
+            }
+        });
+
+        document.getElementById('rotate-mobile').addEventListener('click', () => {
+            if (gameStarted && !gameOver && !isPaused) {
+                rotate();
+                draw();
+            }
+        });
+
         document.getElementById('start-btn').addEventListener('click', () => {
             if (!gameStarted || gameOver) {
                 resetGame();
@@ -716,7 +813,6 @@
 
         document.getElementById('music-btn').addEventListener('click', toggleMusic);
 
-        // Инициализация
         updateScore();
         draw();
         displayHighScores();
