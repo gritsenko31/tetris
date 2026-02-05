@@ -33,24 +33,6 @@ Perfect for puzzle lovers, retro gaming fans, and anyone seeking addictive gamep
 ### Objective
 Stack falling tetrominoes to create complete horizontal lines. Clear lines to score points and prevent blocks from reaching the top!
 
-### Controls
-
-**Desktop:**
-- **Left Arrow** - Move piece left
-- **Right Arrow** - Move piece right
-- **Down Arrow** - Soft drop (move down faster)
-- **Up Arrow** or **X** - Rotate clockwise
-- **Z** - Rotate counter-clockwise
-- **Spacebar** - Hard drop (instant drop)
-- **P** - Pause game
-- **R** - Restart
-
-**Mobile:**
-- **Tap Left/Right** - Move piece
-- **Tap Rotate** - Rotate piece
-- **Tap Down** - Soft drop
-- **Tap Drop** - Hard drop
-
 ### Game Rules
 
 - Tetrominoes fall from top of the screen
